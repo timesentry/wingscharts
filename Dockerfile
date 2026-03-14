@@ -28,12 +28,14 @@ ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
 
 WORKDIR /app
 
-# Copy source
+# Copy source and install dependencies
 COPY . .
-
-# Install all dependencies (install.js needs devDeps like 'colors')
 RUN npm ci
+
+# Pre-fetch Highcharts scripts from CDN at build time so the
+# container doesn't need outbound network access on startup
+RUN node ./bin/cli.js --enableServer 0 --logLevel 4 || true
 
 EXPOSE 7801
 
-CMD ["node", "./bin/cli.js", "--enableServer", "1", "--logLevel", "2"]
+CMD ["node", "./bin/cli.js", "--enableServer", "1", "--logLevel", "4"]
